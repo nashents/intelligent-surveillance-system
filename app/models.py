@@ -3,12 +3,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 
 
+class Bay(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.Integer, index=True, unique=True)
+    bay_owner_id = db.Column(db.Integer, db.ForeignKey('bay_owner.id'))
+
+
 class BayOwner(db.Model):
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(60), index=True, unique=False)
     last_name = db.Column(db.String(60), index=True, unique=False)
     national_id = db.Column(db.String(60), index=True, unique=True)
-    upload_image_name = db.Column(db.String(60), index=True, unique=True)
+    uploaded_image_name = db.Column(db.String(60), index=True, unique=True)
+    bay = db.relationship('Bay', backref='bay_owner', uselist=False, lazy=True)
 
     def save(self):
         db.session.add(self)

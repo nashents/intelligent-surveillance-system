@@ -1,6 +1,83 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block body %}
+    <div class="row">
+        <!-- Page Header -->
+        <div class="col-lg-12">
+            <h1 class="page-header"> Intelligent Surveillance and Alert System (ISAAS) Dashboard</h1>
+        </div>
+        <!--End Page Header -->
+    </div>
 
+    <div class="row">
+        <!-- Welcome -->
+        <div class="col-lg-12">
+            <div class="alert alert-info">
+                <i class="fa fa-folder-open"></i><b>&nbsp;Hello !! </b>Welcome Back <b>Panashe Ngorima </b>
+
+            </div>
+        </div>
+        <!--end  Welcome -->
+    </div>
+
+
+
+
+    <div class="row">
+        <div class="col-lg-8">
+
+
+            <!--Area chart example -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Start Monitoring
+                </div>
+                <div class="panel-body">
+                    <div class="col-md- col-sm-6">
+                        <figure>
+                            <video width="320" height="340" controls>
+                                <source src="{{ url_for('home.video_feed') }}">
+                    </div>
+                </div>
+
+            </div>
+            <!--End area chart example -->
+            <!--Simple table example -->
+
+            <!--End simple table example -->
+
+        </div>
+
+        <div class="col-lg-4">
+            <div class="panel panel-primary text-center no-boder">
+                <a href="{{ url_for('home.add_bay_owner') }}">
+                    <div class="panel-body yellow">
+                        <i class="fa fa-plus fa-3x"></i>
+                        <h3>Add Bay Owner </h3>
+                    </div>
+                </a>
+
+            </div>
+            <div class="panel panel-primary text-center no-boder">
+                <a href="{{ url_for('home.detected_faces') }}">
+                    <div class="panel-body blue">
+                        <i class="fa fa-user fa-3x"></i>
+                        <h3>Detected Faces </h3>
+                    </div>
+                </a>
+
+            </div>
+            <div class="panel panel-primary text-center no-boder">
+                <a href="{{url_for('home.video_feed') }}">
+                    <div class="panel-body green">
+                        <i class="fa fa-video-camera fa-3x"></i>
+                        <h3>Start ISAAS</h3>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+    </div>
 
 {% endblock %}
