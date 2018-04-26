@@ -25,6 +25,8 @@ login_manager = LoginManager()
 def create_app(config_name):
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
+    upload_path = 'app/uploads'
+    app.config['UPLOADED_PHOTOS_DEST'] = upload_path
     db.init_app(app)
     migrate = Migrate(app, db)
     Bootstrap(app)
@@ -34,9 +36,6 @@ def create_app(config_name):
     login_manager.login_view = "auth.login"
 
     from app import models
-
-    from .admin import admin as admin_blueprint
-    app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
