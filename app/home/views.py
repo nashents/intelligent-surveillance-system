@@ -1,14 +1,11 @@
 from flask import render_template, redirect, flash, url_for, abort, send_from_directory
 from flask_login import login_required, current_user
 from wtforms import ValidationError
-import requests
-import json
 
 from . import home, photos
 from .forms import BayOwnerForm
 from ..models import BayOwner, Bay
 from app import app
-
 
 @home.route('/')
 def dashboard():

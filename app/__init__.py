@@ -6,7 +6,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
-from flask_marshmallow import Marshmallow
 
 # Local Imports
 from config import app_config
@@ -16,7 +15,6 @@ app = Flask(__name__, instance_relative_config=True)
 
 # db variable initialization
 db = SQLAlchemy()
-ma = Marshmallow(app)
 
 login_manager = LoginManager()
 
