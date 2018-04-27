@@ -1,11 +1,12 @@
-from flask import render_template, redirect, flash, url_for, abort, send_from_directory
-from flask_login import login_required, current_user
+from flask import render_template, redirect, flash, url_for, Response
 from wtforms import ValidationError
 
 from . import home, photos
 from .forms import BayOwnerForm
 from ..models import BayOwner, Bay
 from app import app
+
+from .camera_pi import Camera
 
 @home.route('/')
 def dashboard():
@@ -31,6 +32,21 @@ def add_bay_owner():
         return redirect(url_for('home.dashboard'))
 
     return render_template('home/bay_owner/add.html', form=form, title='Add Bay Owner')
+
+
+def gen(camera):
+    """Video streaming generator function."""
+    while True:
+        frame = camera.get_frame()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+
+@app.route('/video_feed')
+def video_feed():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    return Response(gen(Camera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 def uploaded_image():
