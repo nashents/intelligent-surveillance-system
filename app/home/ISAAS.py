@@ -19,7 +19,7 @@ def captureImage(currentTime, picPath):
     with picamera.PiCamera() as camera:
         camera.resolution = (1280, 720)
         camera.capture(picPath + picName)
-     
+
     print("We have taken a picture.")
     return picName
 
@@ -39,7 +39,7 @@ def timeStamp(currentTime, picPath, picName):
     # Execute the command
     call([timestampCommand], shell=True)
     print("We have timestamped our picture.")
-    
+
 def main():
     known_image = face_recognition.load_image_file("/home/pi/Desktop/iss/images/known_people/2018.04.20-112118.jpg")
     known_face_encoding = face_recognition.face_encodings(known_image)[0]
@@ -53,22 +53,22 @@ def main():
             picName = captureImage(currentTime, picPath)
             timeStamp(currentTime, picPath, picName)
             filepath = picPath + picName
-            
+
             unknown_image = face_recognition.load_image_file(filepath)
             face_locations = face_recognition.face_locations(unknown_image)
             print("Found {} faces in image.".format(len(face_locations)))
             unknown_face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
-           
+
             for unknown_face_encoding in unknown_face_encodings:
                 results = face_recognition.compare_faces([known_face_encoding], unknown_face_encoding)
                 name = "<Unknown Person>"
-                
+
                 if results[0] == True:
                     name = "Panashe Ngorima"
                     print("I see someone named {}!".format(name))
                 else:
                     print("Alert!! THERE IS AN UNRECOGNIZED FACE IN THE PARKING BAY")
-                    
+
                     try:
                         if(time.time() - last_epoch) > email_update_interval:
                             last_epoch = time.time()
@@ -76,21 +76,21 @@ def main():
                             send_an_email(unknown_image)
                             send_an_sms()
                             print ("done!")
-                    
+
                     except:
                         print ("Error sending email: ")
-                        
-                    
-		                  
-                   
-           
-       
-        
+
+
+
+
+
+
+
 while True:
     main()
-   
-  
-        
 
- 
-        
+
+
+
+
+
