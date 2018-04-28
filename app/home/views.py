@@ -59,10 +59,16 @@ def uploaded_image():
 # @login_required
 def video_feed():
     print("+++++++++++++++++++++++++++++++ In here")
-    return render_template('home/dashboard.html', title='Dashboard')
+    return render_template('home/video_feed.html', title='Video Feed')
 
 
 @home.route('/detected_faces', methods=['GET', 'POST'])
 # @login_required
 def detected_faces():
     return render_template('home/dashboard.html', title='Dashboard')
+
+
+@home.route('/exit_feed', methods=['GET', 'POST'])
+# @login_required
+def exit_feed():
+    return redirect(url_for('home.dashboard'))
