@@ -69,6 +69,9 @@ def video_feed():
         while True:
             frame = camera.get_frame()
 
+            print("++++++++++++++++++++++++++ Frame", frame)
+            print("++++++++++++++++++++++++++ Frame Type", type(frame))
+
             print("++++++++++++++++++++++++++ Bay Owner file path", file_path)
             known_image = face_recognition.load_image_file(file_path)
 
