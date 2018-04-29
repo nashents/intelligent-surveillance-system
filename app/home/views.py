@@ -58,37 +58,38 @@ def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
 
     @stream_with_context
-    def capture_image(currentTime, picPath):
-        # Generate the picture's name
-        picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
-        with picamera.PiCamera() as camera:
-            camera.resolution = (1280, 720)
-            camera.capture(picPath + picName)
-
-        print("We have taken a picture.")
-        return picName
-
-    def get_time():
-        # Fetch the current time
-        currentTime = datetime.now()
-        return currentTime
-
-    @stream_with_context
-    def time_stamp(currentTime, picPath, picName):
-        # Variable for file path
-        filepath = picPath + picName
-        # Create message to stamp on picture
-        message = currentTime.strftime("%Y.%m.%d - %H:%M:%S")
-        # Create command to execute
-        timestampCommand = "/usr/bin/convert " + filepath + " -pointsize 36 \
-        -fill red -annotate +700+650 '" + message + "' " + filepath
-        # Execute the command
-        call([timestampCommand], shell=True)
-        print("We have timestamped our picture.")
-
-    @stream_with_context
     def gen(camera, file_path):
         """Video streaming generator function."""
+
+        @stream_with_context
+        def capture_image(currentTime, picPath):
+            # Generate the picture's name
+            picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
+            with picamera.PiCamera() as camera:
+                camera.resolution = (1280, 720)
+                camera.capture(picPath + picName)
+
+            print("We have taken a picture.")
+            return picName
+
+        def get_time():
+            # Fetch the current time
+            currentTime = datetime.now()
+            return currentTime
+
+        @stream_with_context
+        def time_stamp(currentTime, picPath, picName):
+            # Variable for file path
+            filepath = picPath + picName
+            # Create message to stamp on picture
+            message = currentTime.strftime("%Y.%m.%d - %H:%M:%S")
+            # Create command to execute
+            timestampCommand = "/usr/bin/convert " + filepath + " -pointsize 36 \
+                -fill red -annotate +700+650 '" + message + "' " + filepath
+            # Execute the command
+            call([timestampCommand], shell=True)
+            print("We have timestamped our picture.")
+
         while True:
             frame = camera.get_frame()
             yield (b'--frame\r\n'
