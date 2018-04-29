@@ -50,13 +50,86 @@ def add_bay_owner():
     return render_template('home/bay_owner/add.html', form=form, title='Add Bay Owner')
 
 
+# -------------------------- face recognition methods -------------------------------- #
+
+def capture_image(currentTime, picPath):
+    # Generate the picture's name
+    picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
+    with picamera.PiCamera() as camera:
+        camera.resolution = (1280, 720)
+        camera.capture(picPath + picName)
+
+    print("We have taken a picture.")
+    return picName
+
+
+def get_time():
+    # Fetch the current time
+    currentTime = datetime.now()
+    return currentTime
+
+
+def time_stamp(currentTime, picPath, picName):
+    # Variable for file path
+    filepath = picPath + picName
+    # Create message to stamp on picture
+    message = currentTime.strftime("%Y.%m.%d - %H:%M:%S")
+    # Create command to execute
+    timestampCommand = "/usr/bin/convert " + filepath + " -pointsize 36 \
+    -fill red -annotate +700+650 '" + message + "' " + filepath
+    # Execute the command
+    call([timestampCommand], shell=True)
+    print("We have timestamped our picture.")
+
+
 def gen(camera):
     """Video streaming generator function."""
     while True:
         frame = camera.get_frame()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        main()
+        bay_owner = BayOwner.get_all()
+        file_name = bay_owner.uploaded_image_name
+        file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
+        known_image = face_recognition.load_image_file(file_path)
+
+        known_face_encoding = face_recognition.face_encodings(known_image)[0]
+        face_locations = []
+        unknown_face_encodings = []
+
+        motionState = motion()
+        print(motionState)
+        if motionState:
+            currentTime = get_time()
+            picName = capture_image(currentTime, picPath)
+            time_stamp(currentTime, picPath, picName)
+            filepath = picPath + picName
+
+            unknown_image = face_recognition.load_image_file(filepath)
+            face_locations = face_recognition.face_locations(unknown_image)
+            print("Found {} faces in image.".format(len(face_locations)))
+            unknown_face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
+
+            for unknown_face_encoding in unknown_face_encodings:
+                results = face_recognition.compare_faces([known_face_encoding], unknown_face_encoding)
+                name = "<Unknown Person>"
+
+                if results[0] == True:
+                    name = "Panashe Ngorima"
+                    print("I see someone named {}!".format(name))
+                else:
+                    print("Alert!! THERE IS AN UNRECOGNIZED FACE IN THE PARKING BAY")
+                    # save unknown face
+                    try:
+                        if (time.time() - last_epoch) > email_update_interval:
+                            last_epoch = time.time()
+                            print("Sending email and Sms...")
+                            send_an_email(unknown_image)
+                            send_an_sms()
+                            print("done!")
+
+                    except:
+                        print("Error sending email: ")
 
 
 @app.route('/video_feed')
@@ -91,82 +164,52 @@ def exit_feed():
     return redirect(url_for('home.dashboard'))
 
 
-# -------------------------- face recognition methods -------------------------------- #
 
-def capture_image(currentTime, picPath):
-    # Generate the picture's name
-    picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
-    with picamera.PiCamera() as camera:
-        camera.resolution = (1280, 720)
-        camera.capture(picPath + picName)
-
-    print("We have taken a picture.")
-    return picName
-
-
-def get_time():
-    # Fetch the current time
-    currentTime = datetime.now()
-    return currentTime
-
-
-def time_stamp(currentTime, picPath, picName):
-    # Variable for file path
-    filepath = picPath + picName
-    # Create message to stamp on picture
-    message = currentTime.strftime("%Y.%m.%d - %H:%M:%S")
-    # Create command to execute
-    timestampCommand = "/usr/bin/convert " + filepath + " -pointsize 36 \
-    -fill red -annotate +700+650 '" + message + "' " + filepath
-    # Execute the command
-    call([timestampCommand], shell=True)
-    print("We have timestamped our picture.")
-
-
-def main():
-    bay_owner = BayOwner.get_all()
-    file_name = bay_owner.uploaded_image_name
-    file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
-    known_image = face_recognition.load_image_file(file_path)
-
-    known_face_encoding = face_recognition.face_encodings(known_image)[0]
-    face_locations = []
-    unknown_face_encodings = []
-
-    motionState = motion()
-    print(motionState)
-    if motionState:
-        currentTime = get_time()
-        picName = capture_image(currentTime, picPath)
-        time_stamp(currentTime, picPath, picName)
-        filepath = picPath + picName
-
-        unknown_image = face_recognition.load_image_file(filepath)
-        face_locations = face_recognition.face_locations(unknown_image)
-        print("Found {} faces in image.".format(len(face_locations)))
-        unknown_face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
-
-        for unknown_face_encoding in unknown_face_encodings:
-            results = face_recognition.compare_faces([known_face_encoding], unknown_face_encoding)
-            name = "<Unknown Person>"
-
-            if results[0] == True:
-                name = "Panashe Ngorima"
-                print("I see someone named {}!".format(name))
-            else:
-                print("Alert!! THERE IS AN UNRECOGNIZED FACE IN THE PARKING BAY")
-                # save unknown face
-                try:
-                    if (time.time() - last_epoch) > email_update_interval:
-                        last_epoch = time.time()
-                        print("Sending email and Sms...")
-                        send_an_email(unknown_image)
-                        send_an_sms()
-                        print("done!")
-
-                except:
-                    print("Error sending email: ")
-
-
-while True:
-    main()
+#
+# def main():
+#     bay_owner = BayOwner.get_all()
+#     file_name = bay_owner.uploaded_image_name
+#     file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
+#     known_image = face_recognition.load_image_file(file_path)
+#
+#     known_face_encoding = face_recognition.face_encodings(known_image)[0]
+#     face_locations = []
+#     unknown_face_encodings = []
+#
+#     motionState = motion()
+#     print(motionState)
+#     if motionState:
+#         currentTime = get_time()
+#         picName = capture_image(currentTime, picPath)
+#         time_stamp(currentTime, picPath, picName)
+#         filepath = picPath + picName
+#
+#         unknown_image = face_recognition.load_image_file(filepath)
+#         face_locations = face_recognition.face_locations(unknown_image)
+#         print("Found {} faces in image.".format(len(face_locations)))
+#         unknown_face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
+#
+#         for unknown_face_encoding in unknown_face_encodings:
+#             results = face_recognition.compare_faces([known_face_encoding], unknown_face_encoding)
+#             name = "<Unknown Person>"
+#
+#             if results[0] == True:
+#                 name = "Panashe Ngorima"
+#                 print("I see someone named {}!".format(name))
+#             else:
+#                 print("Alert!! THERE IS AN UNRECOGNIZED FACE IN THE PARKING BAY")
+#                 # save unknown face
+#                 try:
+#                     if (time.time() - last_epoch) > email_update_interval:
+#                         last_epoch = time.time()
+#                         print("Sending email and Sms...")
+#                         send_an_email(unknown_image)
+#                         send_an_sms()
+#                         print("done!")
+#
+#                 except:
+#                     print("Error sending email: ")
+#
+#
+# while True:
+#     main()
