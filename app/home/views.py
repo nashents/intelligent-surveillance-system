@@ -58,22 +58,18 @@ def add_bay_owner():
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
 
-
     bay_owner = BayOwner.query.get(int(2))
     file_name = bay_owner.uploaded_image_name
     file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
 
-
     def gen(camera):
         """Video streaming generator function."""
-
         while True:
             frame = camera.get_frame()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
             main(file_path)
     return Response(stream_with_context(gen(Camera())))
-
 
 
 def uploaded_image():
@@ -174,52 +170,3 @@ def main(file_path):
 
                 except:
                     print("Error sending email: ")
-
-#
-# def main():
-#     bay_owner = BayOwner.get_all()
-#     file_name = bay_owner.uploaded_image_name
-#     file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
-#     known_image = face_recognition.load_image_file(file_path)
-#
-#     known_face_encoding = face_recognition.face_encodings(known_image)[0]
-#     face_locations = []
-#     unknown_face_encodings = []
-#
-#     motionState = motion()
-#     print(motionState)
-#     if motionState:
-#         currentTime = get_time()
-#         picName = capture_image(currentTime, picPath)
-#         time_stamp(currentTime, picPath, picName)
-#         filepath = picPath + picName
-#
-#         unknown_image = face_recognition.load_image_file(filepath)
-#         face_locations = face_recognition.face_locations(unknown_image)
-#         print("Found {} faces in image.".format(len(face_locations)))
-#         unknown_face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
-#
-#         for unknown_face_encoding in unknown_face_encodings:
-#             results = face_recognition.compare_faces([known_face_encoding], unknown_face_encoding)
-#             name = "<Unknown Person>"
-#
-#             if results[0] == True:
-#                 name = "Panashe Ngorima"
-#                 print("I see someone named {}!".format(name))
-#             else:
-#                 print("Alert!! THERE IS AN UNRECOGNIZED FACE IN THE PARKING BAY")
-#                 # save unknown face
-#                 try:
-#                     if (time.time() - last_epoch) > email_update_interval:
-#                         last_epoch = time.time()
-#                         print("Sending email and Sms...")
-#                         send_an_email(unknown_image)
-#                         send_an_sms()
-#                         print("done!")
-#
-#                 except:
-#                     print("Error sending email: ")
-#
-#
-# while True:
-#     main()
