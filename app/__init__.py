@@ -23,7 +23,7 @@ login_manager = LoginManager()
 def create_app(config_name):
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    upload_path = 'app/uploads/'
+    upload_path = '/home/pi/Desktop/intelligent-surveillance-system/app/uploads/'
     app.config['UPLOADED_PHOTOS_DEST'] = upload_path
     db.init_app(app)
     migrate = Migrate(app, db)
