@@ -88,7 +88,8 @@ def gen(camera):
         frame = camera.get_frame()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        bay_owner = BayOwner.get_all()
+        bay_owner = BayOwner.get(2)
+        print("++++++++++++++++++++++++++ Bay Owner", bay_owner)
         file_name = bay_owner.uploaded_image_name
         file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
         known_image = face_recognition.load_image_file(file_path)
