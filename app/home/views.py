@@ -61,7 +61,6 @@ def video_feed():
     def gen(camera, file_path):
         """Video streaming generator function."""
 
-        @stream_with_context
         def capture_image(currentTime, picPath):
             # Generate the picture's name
             picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
@@ -77,7 +76,6 @@ def video_feed():
             currentTime = datetime.now()
             return currentTime
 
-        @stream_with_context
         def time_stamp(currentTime, picPath, picName):
             # Variable for file path
             filepath = picPath + picName
@@ -102,8 +100,8 @@ def video_feed():
             face_locations = []
             unknown_face_encodings = []
             currentTime = get_time()
-            picName = capture_image(currentTime, picPath)
-            time_stamp(currentTime, picPath, picName)
+            picName = stream_with_context(capture_image(currentTime, picPath))
+            stream_with_context(time_stamp(currentTime, picPath, picName))
             filepath = picPath + picName
 
             unknown_image = face_recognition.load_image_file(filepath)
@@ -135,7 +133,7 @@ def video_feed():
     bay_owner = BayOwner.query.get(int(2))
     file_name = bay_owner.uploaded_image_name
     file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
-    return Response((gen(Camera(), file_path)),
+    return Response(gen(Camera(), file_path),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
