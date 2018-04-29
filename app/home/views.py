@@ -1,5 +1,5 @@
 from flask import render_template, redirect, flash, url_for, Response, stream_with_context
-
+import io
 from datetime import datetime
 from subprocess import call
 from time import sleep, time
@@ -81,7 +81,7 @@ def video_feed():
             picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
             with picamera.PiCamera() as camera:
                 camera.resolution = (1280, 720)
-                camera.capture(picPath + picName)
+                camera.capture(frame, picPath + picName)
 
             print("We have taken a picture.")
 
