@@ -57,8 +57,12 @@ def add_bay_owner():
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
 
+    bay_owner = BayOwner.query.get(int(2))
+    file_name = bay_owner.uploaded_image_name
+    file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
+
     @stream_with_context
-    def gen(camera, file_path):
+    def gen(camera):
         """Video streaming generator function."""
 
         def capture_image(currentTime, picPath):
@@ -90,8 +94,6 @@ def video_feed():
 
         while True:
             frame = camera.get_frame()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
             print("++++++++++++++++++++++++++ Bay Owner file path", file_path)
             known_image = face_recognition.load_image_file(file_path)
@@ -130,11 +132,11 @@ def video_feed():
                     except:
                         print("Error sending email: ")
 
-    bay_owner = BayOwner.query.get(int(2))
-    file_name = bay_owner.uploaded_image_name
-    file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
-    return Response(gen(Camera(), file_path),
-                        mimetype='multipart/x-mixed-replace; boundary=frame')
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+    return Response(gen(Camera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 def uploaded_image():
