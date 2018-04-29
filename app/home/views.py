@@ -79,9 +79,9 @@ def video_feed():
 
             # Generate the picture's name
             picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
-            with stream_with_context(picamera.PiCamera()) as camera:
+            with picamera.PiCamera() as camera:
                 camera.resolution = (1280, 720)
-                camera.capture(frame, picPath + picName)
+                camera.capture(picPath + picName)
 
             print("We have taken a picture.")
 
