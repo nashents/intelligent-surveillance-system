@@ -135,7 +135,7 @@ def video_feed():
     file_name = bay_owner.uploaded_image_name
     file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
     return Response((gen(Camera(), file_path)),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 def uploaded_image():
