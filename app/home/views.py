@@ -65,33 +65,6 @@ def video_feed():
     def gen(camera):
         """Video streaming generator function."""
 
-        def capture_image(currentTime, picPath):
-            # Generate the picture's name
-            picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
-            with picamera.PiCamera() as camera:
-                camera.resolution = (1280, 720)
-                camera.capture(picPath + picName)
-
-            print("We have taken a picture.")
-            return picName
-
-        def get_time():
-            # Fetch the current time
-            currentTime = datetime.now()
-            return currentTime
-
-        def time_stamp(currentTime, picPath, picName):
-            # Variable for file path
-            filepath = picPath + picName
-            # Create message to stamp on picture
-            message = currentTime.strftime("%Y.%m.%d - %H:%M:%S")
-            # Create command to execute
-            timestampCommand = "/usr/bin/convert " + filepath + " -pointsize 36 \
-                -fill red -annotate +700+650 '" + message + "' " + filepath
-            # Execute the command
-            call([timestampCommand], shell=True)
-            print("We have timestamped our picture.")
-
         while True:
             frame = camera.get_frame()
 
@@ -101,7 +74,7 @@ def video_feed():
             known_face_encoding = face_recognition.face_encodings(known_image)[0]
             face_locations = []
             unknown_face_encodings = []
-            currentTime = get_time()
+            currentTime = datetime.now()
             # picName = capture_image(currentTime, picPath)
 
             # Generate the picture's name
