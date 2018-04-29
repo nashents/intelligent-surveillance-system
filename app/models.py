@@ -28,6 +28,10 @@ class BayOwner(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    @staticmethod
+    def get_all():
+        return BayOwner.query.all()
+
     def __repr__(self):
         return "<BayOwner: {} {}>".format(self.first_name, self.last_name)
 

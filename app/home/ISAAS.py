@@ -8,6 +8,7 @@ from time import sleep, time
 
 
 
+
 motionState = False
 picPath = "/home/pi/Desktop/iss/images/unknown_people/"
 last_epoch = 0
@@ -68,7 +69,7 @@ def main():
                     print("I see someone named {}!".format(name))
                 else:
                     print("Alert!! THERE IS AN UNRECOGNIZED FACE IN THE PARKING BAY")
-
+                    # save unknown face
                     try:
                         if(time.time() - last_epoch) > email_update_interval:
                             last_epoch = time.time()
