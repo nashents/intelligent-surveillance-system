@@ -89,6 +89,7 @@ def gen(camera, bay_owner):
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
+        print("++++++++++++++++++++++++++ Bay Owner", bay_owner)
         file_name = bay_owner.uploaded_image_name
         file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
         known_image = face_recognition.load_image_file(file_path)
@@ -137,7 +138,7 @@ def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     bay_owner = BayOwner.query.get(int(2))
     print("++++++++++++++++++++++++++ Bay Owner", bay_owner)
-    return Response(gen(Camera(), bay_owner),
+    return Response(gen(Camera(),bay_owner),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
