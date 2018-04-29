@@ -73,6 +73,7 @@ def video_feed():
         currentTime = datetime.now()
         return currentTime
 
+    @stream_with_context
     def time_stamp(currentTime, picPath, picName):
         # Variable for file path
         filepath = picPath + picName
