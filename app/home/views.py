@@ -96,7 +96,8 @@ def gen(camera, file_path):
         face_locations = []
         unknown_face_encodings = []
         currentTime = get_time()
-        picName = capture_image(currentTime, picPath)
+        with app.app_context():
+            picName = capture_image(currentTime, picPath)
         time_stamp(currentTime, picPath, picName)
         filepath = picPath + picName
 
@@ -133,7 +134,6 @@ def video_feed():
     bay_owner = BayOwner.query.get(int(2))
     file_name = bay_owner.uploaded_image_name
     file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
-    print("++++++++++++++++++++++++++ Bay Owner file path", file_path)
     return Response(gen(Camera(), file_path),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
