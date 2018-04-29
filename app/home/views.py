@@ -86,6 +86,7 @@ def video_feed():
         call([timestampCommand], shell=True)
         print("We have timestamped our picture.")
 
+    @stream_with_context
     def gen(camera, file_path):
         """Video streaming generator function."""
         while True:
@@ -133,7 +134,7 @@ def video_feed():
     bay_owner = BayOwner.query.get(int(2))
     file_name = bay_owner.uploaded_image_name
     file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
-    return Response(stream_with_context(gen(Camera(), file_path)),
+    return Response((gen(Camera(), file_path)),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
