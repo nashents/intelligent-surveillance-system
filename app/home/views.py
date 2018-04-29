@@ -102,8 +102,27 @@ def video_feed():
             face_locations = []
             unknown_face_encodings = []
             currentTime = get_time()
-            picName = stream_with_context(capture_image(currentTime, picPath))
-            stream_with_context(time_stamp(currentTime, picPath, picName))
+            # picName = capture_image(currentTime, picPath)
+
+            # Generate the picture's name
+            picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
+            with picamera.PiCamera() as camera:
+                camera.resolution = (1280, 720)
+                camera.capture(picPath + picName)
+
+            print("We have taken a picture.")
+
+            # Time stamp
+            filepath = picPath + picName
+            # Create message to stamp on picture
+            message = currentTime.strftime("%Y.%m.%d - %H:%M:%S")
+            # Create command to execute
+            timestampCommand = "/usr/bin/convert " + filepath + " -pointsize 36 \
+                       -fill red -annotate +700+650 '" + message + "' " + filepath
+            # Execute the command
+            call([timestampCommand], shell=True)
+            print("We have timestamped our picture.")
+
             filepath = picPath + picName
 
             unknown_image = face_recognition.load_image_file(filepath)
