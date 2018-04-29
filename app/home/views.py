@@ -95,40 +95,36 @@ def gen(camera, file_path):
         known_face_encoding = face_recognition.face_encodings(known_image)[0]
         face_locations = []
         unknown_face_encodings = []
-        with app.app_context():
-            motionState = motion()
-            print(motionState)
-            if motionState:
-                currentTime = get_time()
-                picName = capture_image(currentTime, picPath)
-                time_stamp(currentTime, picPath, picName)
-                filepath = picPath + picName
+        currentTime = get_time()
+        picName = capture_image(currentTime, picPath)
+        time_stamp(currentTime, picPath, picName)
+        filepath = picPath + picName
 
-                unknown_image = face_recognition.load_image_file(filepath)
-                face_locations = face_recognition.face_locations(unknown_image)
-                print("Found {} faces in image.".format(len(face_locations)))
-                unknown_face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
+        unknown_image = face_recognition.load_image_file(filepath)
+        face_locations = face_recognition.face_locations(unknown_image)
+        print("Found {} faces in image.".format(len(face_locations)))
+        unknown_face_encodings = face_recognition.face_encodings(unknown_image, face_locations)
 
-                for unknown_face_encoding in unknown_face_encodings:
-                    results = face_recognition.compare_faces([known_face_encoding], unknown_face_encoding)
-                    name = "<Unknown Person>"
+        for unknown_face_encoding in unknown_face_encodings:
+            results = face_recognition.compare_faces([known_face_encoding], unknown_face_encoding)
+            name = "<Unknown Person>"
 
-                    if results[0] == True:
-                        name = "Panashe Ngorima"
-                        print("I see someone named {}!".format(name))
-                    else:
-                        print("Alert!! THERE IS AN UNRECOGNIZED FACE IN THE PARKING BAY")
-                        # save unknown face
-                        try:
-                            if (time.time() - last_epoch) > email_update_interval:
-                                last_epoch = time.time()
-                                print("Sending email and Sms...")
-                                send_an_email(unknown_image)
-                                send_an_sms()
-                                print("done!")
+            if results[0] == True:
+                name = "Panashe Ngorima"
+                print("I see someone named {}!".format(name))
+            else:
+                print("Alert!! THERE IS AN UNRECOGNIZED FACE IN THE PARKING BAY")
+                # save unknown face
+                try:
+                    if (time.time() - last_epoch) > email_update_interval:
+                        last_epoch = time.time()
+                        print("Sending email and Sms...")
+                        send_an_email(unknown_image)
+                        send_an_sms()
+                        print("done!")
 
-                        except:
-                            print("Error sending email: ")
+                except:
+                    print("Error sending email: ")
 
 
 @app.route('/video_feed')
