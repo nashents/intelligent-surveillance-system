@@ -57,6 +57,7 @@ def add_bay_owner():
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
 
+    @stream_with_context
     def capture_image(currentTime, picPath):
         # Generate the picture's name
         picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
