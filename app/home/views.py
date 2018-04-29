@@ -82,6 +82,7 @@ def video_feed():
             with picamera.PiCamera() as camera:
                 camera.resolution = (1280, 720)
                 camera.capture(picPath + picName)
+                pass
 
             print("We have taken a picture.")
 
