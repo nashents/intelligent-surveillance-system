@@ -82,14 +82,13 @@ def time_stamp(currentTime, picPath, picName):
     print("We have timestamped our picture.")
 
 
-def gen(camera):
+def gen(camera, bay_owner):
     """Video streaming generator function."""
     while True:
         frame = camera.get_frame()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        bay_owner = BayOwner.query.get(int(2))
-        print("++++++++++++++++++++++++++ Bay Owner", bay_owner)
+
         file_name = bay_owner.uploaded_image_name
         file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
         known_image = face_recognition.load_image_file(file_path)
@@ -136,7 +135,9 @@ def gen(camera):
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(gen(Camera()),
+    bay_owner = BayOwner.query.get(int(2))
+    print("++++++++++++++++++++++++++ Bay Owner", bay_owner)
+    return Response(gen(Camera(), bay_owner),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
