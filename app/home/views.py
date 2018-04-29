@@ -1,4 +1,4 @@
-from flask import render_template, redirect, flash, url_for, Response
+from flask import render_template, redirect, flash, url_for, Response, stream_with_context
 
 from datetime import datetime
 from subprocess import call
@@ -50,19 +50,21 @@ def add_bay_owner():
     return render_template('home/bay_owner/add.html', form=form, title='Add Bay Owner')
 
 
-def gen(camera):
-    """Video streaming generator function."""
-    while True:
-        frame = camera.get_frame()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        main()
-
-
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(gen(Camera()),
+    bay_owner = BayOwner.query.get(int(2))
+    file_name = bay_owner.uploaded_image_name
+    file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
+
+    def gen(camera):
+        """Video streaming generator function."""
+        while True:
+            frame = camera.get_frame()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            main(file_path)
+    return Response(stream_with_context(gen(Camera())),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -72,11 +74,11 @@ def uploaded_image():
     return file_path
 
 
-@home.route('/video_feed', methods=['GET', 'POST'])
-# @login_required
-def video_feed():
-    print("+++++++++++++++++++++++++++++++ In here")
-    return render_template('home/video_feed.html', title='Video Feed')
+# @home.route('/video_feed', methods=['GET', 'POST'])
+# # @login_required
+# def video_feed():
+#     print("+++++++++++++++++++++++++++++++ In here")
+#     return render_template('home/video_feed.html', title='Video Feed')
 
 
 @home.route('/detected_faces', methods=['GET', 'POST'])
@@ -123,10 +125,8 @@ def time_stamp(currentTime, picPath, picName):
     print("We have timestamped our picture.")
 
 
-def main():
-    bay_owner = BayOwner.get_all()
-    file_name = bay_owner.uploaded_image_name
-    file_path = photos.path(file_name, app.config['UPLOADED_PHOTOS_DEST'])
+def main(file_path):
+
     known_image = face_recognition.load_image_file(file_path)
 
     known_face_encoding = face_recognition.face_encodings(known_image)[0]
@@ -167,6 +167,3 @@ def main():
                 except:
                     print("Error sending email: ")
 
-
-while True:
-    main()
