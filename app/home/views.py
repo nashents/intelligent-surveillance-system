@@ -7,6 +7,7 @@ from .sendalerts import send_an_email, send_an_sms
 import face_recognition
 from .P3picam import motion
 import picamera
+from picamera import PiCamera
 
 from . import home, photos
 from .forms import BayOwnerForm
@@ -79,10 +80,9 @@ def video_feed():
 
             # Generate the picture's name
             picName = currentTime.strftime("%Y.%m.%d-%H.%M.%S") + '.jpg'
-            with picamera.PiCamera() as camera:
-                camera.resolution = (1280, 720)
-                camera.capture(picPath + picName)
-                pass
+            camera = PiCamera()
+            camera.resolution = (1280, 720)
+            camera.capture(picPath + picName)
 
             print("We have taken a picture.")
 
